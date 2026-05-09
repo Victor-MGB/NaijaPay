@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
+    container_name: naijapay-postgres
     environment:
       POSTGRES_DB: naijapay
       POSTGRES_USER: naijapay
       POSTGRES_PASSWORD: naijapay123
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U naijapay"]
       interval: 10s
@@ -22,9 +20,10 @@ services:
 
   redis:
     image: redis:7-alpine
+    container_name: naijapay-redis
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -35,6 +34,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
+    container_name: naijapay-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: naijapay
       RABBITMQ_DEFAULT_PASS: naijapay123
@@ -51,14 +51,20 @@ services:
 
   transaction-service:
     build: ./services/transaction-service
+    container_name: naijapay-transaction-service
     ports:
-      - "8001:8001"
+      - "8001:8000"
     environment:
       DATABASE_URL: postgresql://naijapay:naijapay123@postgres:5432/naijapay
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://naijapay:naijapay123@rabbitmq:5672/
+      
+      TRANSACTION_SERVICE_URL: http://transaction-service:8000
+      WALLET_SERVICE_URL: http://localhost:8002
+      FRAUD_SERVICE_URL: http://localhost:8003
+      JWT_SECRET_KEY: super-secret-key-change-in-production-2026
       SERVICE_NAME: transaction-service
-      PORT: 8001
+      PORT: 8000
     depends_on:
       postgres:
         condition: service_healthy

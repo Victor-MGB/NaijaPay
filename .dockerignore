@@ -1,0 +1,42 @@
+# Ignore everything by default (safer & smaller images)
+**
+
+# Then explicitly allow what we need
+!app/
+!src/
+!alembic/
+!migrations/
+!requirements.txt
+!requirements/
+!Dockerfile
+!docker-compose.yml
+!README.md
+!docs/
+
+# But still ignore sensitive/unnecessary files inside allowed dirs
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/*.so
+
+*.env
+*.log
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+naijapay-venv/
+env/
+data/
+logs/
+*.sqlite3
+*.db
+dump.rdb
